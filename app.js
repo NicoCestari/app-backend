@@ -1,94 +1,47 @@
-const fs = require('fs');
+const productManager = require("./ProductManager");
+const express = require("express");
+const app = express();
 
-class ProductManager {
-    constructor(filePath) {
-        this.path = filePath;
-        this.products = this.loadProducts();
+app.get("/products", (req, res) => {
+    let products = productManager.getAllProducts()
+    res.send(products);
+})
+
+
+app.get("/products/:id", (req, res) => {
+    let id = req.params.id
+
+    let producto = productManager.getProductById(id)
+    //console.log(producto);
+    if (producto == null) {
+        res.status(404).send({ mensaje: "El producto con ese ID no existe" });
+    } else {
+        res.send(producto);
+
     }
 
-    loadProducts() {
-        try {
-            const data = fs.readFileSync(this.path, 'utf8');
-            return JSON.parse(data);
-        } catch (err) {
-            return [];
-        }
+})
+
+app.get("/products/:limit", (req, res) => {
+    let limit = req.params.limit
+
+    let productos = productManager.getLimitProduct(limit)
+    if(isNaN(limit)) {
+        res.status(500).send({mensaje:"Error en el parametro"});
+    } else {
+        res.send(productos);
     }
 
-    saveProducts() {
-        fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2));
-    }
+    
+    
+    // req.params.limit? 
+    // res.send(productManager.getAllProducts().slice(0, limit)) :
+    // res.sendStatus(400)
+    
+    
+})
 
-    getNextId() {
-        const maxId = this.products.reduce((max, product) => (product.id > max ? product.id : max), 0);
-        return maxId + 1;
-    }
 
-    addProduct(title, description, price, image, code, stock) {
-        const newProduct = {
-            id: this.getNextId(),
-            title,
-            description,
-            price,
-            image,
-            code,
-            stock
-        };
-        this.products.push(newProduct);
-        this.saveProducts();
-        return newProduct;
-    }
-
-    getProductById(productId) {
-        return this.products.find(product => product.id === productId);
-    }
-
-    updateProduct(productId, updatedProduct) {
-        const index = this.products.findIndex(product => product.id === productId);
-        if (index !== -1) {
-            this.products[index] = { ...this.products[index], ...updatedProduct };
-            this.saveProducts();
-            return true;
-        }
-        return false;
-    }
-
-    deleteProduct(productId) {
-        const index = this.products.findIndex(product => product.id === productId);
-        if (index !== -1) {
-            this.products.splice(index, 1);
-            this.saveProducts();
-            return true;
-        }
-        return false;
-    }
-
-    getAllProducts() {
-        return this.products;
-    }
-}
-
-// Ruta al archivo donde se guardarán los productos
-const productManager = new ProductManager('products.json'); 
-
-// Agregar un producto
-const newProduct = productManager.addProduct('Producto 1', 'Descripción del producto', 20.99, 'imagen1.jpg', 'ABC123', 50);
-console.log('Producto agregado:', newProduct);
-
-// Obtener un producto por ID
-const productId = 1;
-const foundProduct = productManager.getProductById(productId);
-console.log('Producto encontrado por ID:', foundProduct);
-
-// Actualizar un producto
-const updatedProduct = { price: 25.99, stock: 60 };
-const isUpdated = productManager.updateProduct(productId, updatedProduct);
-console.log('Producto actualizado:', isUpdated);
-
-// Eliminar un producto
-const isDeleted = productManager.deleteProduct(productId);
-console.log('Producto eliminado:', isDeleted);
-
-// Obtener todos los productos
-const allProducts = productManager.getAllProducts();
-console.log('Todos los productos:', allProducts);
+app.listen(3000, () => {
+    console.log("App ejecutandose en puerto 3000");
+});
