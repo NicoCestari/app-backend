@@ -23,24 +23,14 @@ app.get("/products/:id", (req, res) => {
 })
 
 app.get("/products/:limit", (req, res) => {
-    let limit = req.params.limit
 
-    let productos = productManager.getLimitProduct(limit)
-    if(isNaN(limit)) {
-        res.status(500).send({mensaje:"Error en el parametro"});
-    } else {
-        res.send(productos);
-    }
+    console.log("limit:", limit);
 
-    
-    
-    // req.params.limit? 
-    // res.send(productManager.getAllProducts().slice(0, limit)) :
-    // res.sendStatus(400)
-    
-    
+    let limit = parseInt(req.params.limit);
+    res.send(isNaN(limit) ? 
+    productManager.getAllProducts() : 
+    productManager.getAllProducts().slice(0, limit));
 })
-
 
 app.listen(3000, () => {
     console.log("App ejecutandose en puerto 3000");

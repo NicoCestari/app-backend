@@ -32,9 +32,6 @@ class ProductManager {
         return this.products.find( prod => prod.id == id);
     }
 
-    getLimitProduct(limit) {
-        return this.products.slice( prod =>prod.limit == limit);
-    }
 }
 
 
