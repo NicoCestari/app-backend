@@ -22,9 +22,9 @@ app.get("/products/:id", (req, res) => {
 
 })
 
-app.get("/products/:limit", (req, res) => {
+app.get("/products", (req, res) => {
 
-    console.log("limit:", limit);
+    //console.log("limit:", limit);
 
     let limit = parseInt(req.params.limit);
     res.send(isNaN(limit) ? 
