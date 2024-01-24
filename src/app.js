@@ -1,28 +1,46 @@
-import express  from "express";
+import express from "express";
 import handlebars from "express-handlebars";
 import __dirname from './utils.js';
+import productsRouter from "./routes/products.router.js"
+import { Server } from "socket.io";
+
 
 const app = express();
-const users = [
-    {name: 'Bowser', last_name: 'Bros', email: 'bowserbros@gmail.com', age: '150', phone: '2468135756'},
-    {name: 'Mario', last_name: 'Bros', email: 'mbros@gmail.com', age: '50', phone: '1213643678'},
-    {name: 'luiggi', last_name: 'Bros', email: 'lbros@gmail.com', age: '45', phone: '1563213216'},
-    {name: 'Toad', last_name: 'Bros', email: 'tbros@gmail.com', age: '20', phone: '1577654329'},
-    {name: 'Peache', last_name: 'Bros', email: 'ppbros@gmail.com', age: '40', phone: '1509858931'}
-]
+const httpServer = app.listen(8080, () => {
+    console.log("Server is running on port 8080");
+});
 
-app.engine('handlebars', handlebars.engine());
-app.set('views', __dirname + '/views');
-app.set('view engine', 'handlebars');
+const socketServer = new Server(httpServer);
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.urlencoded({ extended: true }))
 
-app.get('/', (req, res) => {
-    const indice = Math.floor(Math.random() * users.length)
 
-    res.render('index', users[indice]);
-})
+app.engine("handlebars", handlebars.engine());
+app.set("views", __dirname + "/views");
+app.set("view engine", "handlebars");
 
-const server = app.listen(8080, () => {
-    console.log("Server is running on http://localhost:8080");
+
+app.use(express.static(__dirname + "/public"));
+
+app.use("/", viewsRouter);
+
+let products = [];
+socketServer.on('connection', socket => {
+    console.log('Nuevo cliente conectado')
+
+    socket.on("addProduct", (product) => {
+        productsRouter.getProducts().push(product);
+        io.emit("updateProducts", productsRouter.getProducts());
+    });
+
+    socket.on("deleteProduct", (productId) => {
+        // Encontrar el índice del producto con el productId
+        const index = productsRouter.getProducts().findIndex((product) => product.id === productId);
+
+        // Si se encuentra el producto, eliminarlo del array
+        if (index !== -1) {
+            productsRouter.getProducts().splice(index, 1);
+            io.emit("updateProducts", productsRouter.getProducts());
+        }
+    });
 })
