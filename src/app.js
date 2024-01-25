@@ -30,7 +30,7 @@ socketServer.on('connection', socket => {
 
     socket.on("addProduct", (product) => {
         productsRouter.getProducts().push(product);
-        io.emit("updateProducts", productsRouter.getProducts());
+        socket.emit("updateProducts", productsRouter.getProducts());
     });
 
     socket.on("deleteProduct", (productId) => {
@@ -40,7 +40,7 @@ socketServer.on('connection', socket => {
        
         if (index !== -1) {
             productsRouter.getProducts().splice(index, 1);
-            io.emit("updateProducts", productsRouter.getProducts());
+            socket.emit("updateProducts", productsRouter.getProducts());
         }
     });
 })
