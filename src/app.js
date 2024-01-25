@@ -24,13 +24,14 @@ app.use(express.static(__dirname + "/public"));
 
 app.use("/", productsRouter);
 
-let products = [];
+const products = [];
 socketServer.on('connection', socket => {
     console.log('Nuevo cliente conectado')
 
     socket.on("addProduct", (product) => {
         productsRouter.getProducts().push(product);
         socket.emit("updateProducts", productsRouter.getProducts());
+        socket.emit("addProduct", products)
     });
 
     socket.on("deleteProduct", (productId) => {
@@ -41,6 +42,7 @@ socketServer.on('connection', socket => {
         if (index !== -1) {
             productsRouter.getProducts().splice(index, 1);
             socket.emit("updateProducts", productsRouter.getProducts());
+            socket.emit("deleteProduct", products)
         }
     });
 })
