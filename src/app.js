@@ -22,7 +22,7 @@ app.set("view engine", "handlebars");
 
 app.use(express.static(__dirname + "/public"));
 
-app.use("/", viewsRouter);
+app.use("/", productsRouter);
 
 let products = [];
 socketServer.on('connection', socket => {
@@ -34,10 +34,10 @@ socketServer.on('connection', socket => {
     });
 
     socket.on("deleteProduct", (productId) => {
-        // Encontrar el índice del producto con el productId
+        
         const index = productsRouter.getProducts().findIndex((product) => product.id === productId);
 
-        // Si se encuentra el producto, eliminarlo del array
+       
         if (index !== -1) {
             productsRouter.getProducts().splice(index, 1);
             io.emit("updateProducts", productsRouter.getProducts());

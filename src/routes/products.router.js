@@ -47,5 +47,5 @@ let products = [
       }
     });
     
-    export default getProducts = () => products;
+    export default() => products;
     
